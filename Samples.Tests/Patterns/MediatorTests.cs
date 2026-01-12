@@ -1,18 +1,17 @@
 ﻿using Moq;
-using NUnit.Framework;
 using Samples.Mediator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture()]
     public class MediatorTests
     {
-        [Test()]
+        [Fact]
         public void AlertMediatorTest()
         {
             var alertManager = new Mock<IAlert>();

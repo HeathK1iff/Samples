@@ -1,29 +1,40 @@
-﻿using Samples.Bridge.Interfaces;
+﻿
+using Samples.Bridge.Dto;
+using Samples.Bridge.Implemetations;
+using System.Text;
 
-namespace Samples.Bridge.Abstractions
+namespace Samples.Bridge.Abstractions;
+
+//Abstraction
+public class ServiceClient
 {
-    //Abstraction
-    public abstract class ServiceClient
+    protected ServiceClientImpl ServiceClientImpl;
+    private Serializator _serializator;
+
+    public ServiceClient(ServiceClientImpl serviceClientImp, Serializator serializator)
     {
-        protected Serializator _serializator;
-        protected IClient _client;
+        _serializator = serializator ?? throw new ArgumentNullException(nameof(serializator));
+        ServiceClientImpl = serviceClientImp ?? throw new ArgumentNullException(nameof(serviceClientImp));
+    }
 
-        protected ServiceClient(Serializator serializator, IClient client)
+    public async Task<bool> AuthenticateAsync(CheckCredentialRequest request)
+    {
+        if (!ServiceClientImpl.IsAvailableService())
         {
-            _serializator = serializator;
-            _client = client;
+            throw new InvalidOperationException("Service is unavailabe");
         }
 
-        public void SetSerializator(Serializator serializator)
+        var response =  await ServiceClientImpl.SendAsync(request);
+
+        if (response == null)
         {
-            if (_serializator  == null)
-            {
-                throw new ArgumentNullException(nameof(serializator));
-            }
-            
-            _serializator = serializator;
+            throw new InvalidOperationException();
         }
 
-        public abstract ServiceResponse Send(ServiceRequest request);
+        using (StreamReader streamReader = new StreamReader(response, Encoding.UTF8))
+        {
+             var res =  _serializator.Deserialize<ServiceResponseBase>(streamReader.ReadToEnd());
+             return res.Success.Equals("success", StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

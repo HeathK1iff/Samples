@@ -1,11 +1,11 @@
 ﻿using Samples.TemplateMethod;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture()]
     public class TemplateMethodTests
     {
-        [Test()]
+        [Fact]
         public void GenerateReport_MakeReport_True()
         {
             Guid firstId = Guid.NewGuid();
@@ -36,7 +36,7 @@ namespace Samples.Tests.Patterns
 
             var actual = report.GenerateReport(data);
 
-            Assert.That(actual, Is.EqualTo(expected));
+            Assert.Equal(expected, actual);
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using Moq;
 using System.Text;
 using Samples.Builder;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture]
-    internal class BuilderTests
+    public class BuilderTests
     {
-        [Test]
+        [Fact]
         public void BuilderTest()
         {
             var headerDataSource = new Mock<IDataSource>();
@@ -23,7 +23,7 @@ namespace Samples.Tests.Patterns
 
             string actual = reportGenerator.Build();
 
-            Assert.IsTrue(expected.Equals(actual));            
+            Assert.True(expected.Equals(actual));            
         }
     }
 }

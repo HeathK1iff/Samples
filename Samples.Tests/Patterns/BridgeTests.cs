@@ -1,39 +1,83 @@
-﻿using Moq;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
+using Moq;
 using Samples.Bridge.Abstractions;
+using Samples.Bridge.Dto;
 using Samples.Bridge.Implemetations;
 using Samples.Bridge.Implemetator;
-using Samples.Bridge.Interfaces;
+using System.Text;
+using Xunit;
 
-namespace Samples.Tests.Patterns
+namespace Samples.Tests.Patterns;
+
+public class BridgeTests
 {
-    [TestFixture()]
-    public class BridgeTests
+    [Fact]
+    public async Task AuthenticateAsync_CheckReturnValueIfSuccess_ShouldBeTrue()
     {
-        [Test()]
-        public void BridgeTest()
-        {
-            var uriBuilder = new UriBuilder()
-            {
-                Host = "local"
-            };
+        //Arrange
+        var fixture = new Fixture();
+        const string ResponseJson = "{ \"Success\":\"success\" }";
+        var mockClientImp = new Mock<ServiceClientImpl>();
+        mockClientImp.Setup(m => m.IsAvailableService())
+            .Returns(true);
+        mockClientImp.Setup(m => m.SendAsync(It.Is<CheckCredentialRequest>(a => a.UserName == "Login" && a.Password == "Password")))
+            .ReturnsAsync((CheckCredentialRequest _) => new MemoryStream(Encoding.UTF8.GetBytes(ResponseJson)));
 
-            var client = new Mock<IClient>();
-            client.Setup(f => f.Write(It.IsAny<string>()));
-            client.Setup(f => f.Connect(It.IsAny<Uri>()));
-            client.Setup(f => f.Disconnect());
-            client.Setup(f => f.Read()).Returns("{\"Success\":\"Test\"}");
-            ServiceClient serviceClient = new CustomerServiceClient(uriBuilder.Uri, client.Object, new JsonSerializator());
-            var response = serviceClient.Send(new CustomerServiceRequest()
-            {
-                UserName = "Test",
-                Password = "password"
-            });
-            serviceClient.
+        fixture.Freeze<ServiceClientImpl>(c => c.FromFactory(() => mockClientImp.Object));
+        fixture.Freeze<Serializator>(_ => _.FromFactory(() => new JsonSerializator()));
 
+        var request = fixture
+            .Build<CheckCredentialRequest>()
+            .With(p => p.UserName, "Login")
+            .With(p => p.Password, "Password")
+            .Create();
 
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response is CustomerServiceResponse, Is.True);
-            Assert.That((response as CustomerServiceResponse).Success.Equals("Test"), Is.True);
-        }
+        var mockSerializator = fixture.Freeze<Mock<Serializator>>();
+        mockSerializator.Setup(p => p.Deserialize<ServiceResponseBase>(ResponseJson))
+            .Returns(new ServiceResponseBase() { Success = "success" });
+
+        var sut = fixture.Create<ServiceClient>();
+
+        //Act
+        var actual = await sut.AuthenticateAsync(request);
+
+        //Assert
+        mockClientImp.Verify();
+        Xunit.Assert.True(actual);
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_CheckIfServiceUnavailable_ShouldException()
+    {
+        //Arrange
+        var fixture = new Fixture();
+        const string ResponseJson = "{ \"Success\":\"success\" }";
+        var mockClientImp = new Mock<ServiceClientImpl>();
+        mockClientImp.Setup(m => m.IsAvailableService())
+            .Returns(false);
+        mockClientImp.Setup(m => m.SendAsync(It.Is<CheckCredentialRequest>(a => a.UserName == "Login" && a.Password == "Password")))
+            .ReturnsAsync((CheckCredentialRequest _) => new MemoryStream(Encoding.UTF8.GetBytes(ResponseJson)));
+
+        fixture.Freeze<ServiceClientImpl>(c => c.FromFactory(() => mockClientImp.Object));
+        fixture.Freeze<Serializator>(_ => _.FromFactory(() => new JsonSerializator()));
+
+        var request = fixture
+            .Build<CheckCredentialRequest>()
+            .With(p => p.UserName, "Login")
+            .With(p => p.Password, "Password")
+            .Create();
+
+        var mockSerializator = fixture.Freeze<Mock<Serializator>>();
+        mockSerializator.Setup(p => p.Deserialize<ServiceResponseBase>(ResponseJson))
+            .Returns(new ServiceResponseBase() { Success = "success" });
+
+        var sut = fixture.Create<ServiceClient>();
+
+        //Act
+        var actual = await Record.ExceptionAsync(async () => await sut.AuthenticateAsync(request));
+
+        //Assert
+        Assert.True(actual is InvalidOperationException);
     }
 }

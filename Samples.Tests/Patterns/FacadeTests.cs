@@ -1,27 +1,27 @@
 ﻿using Samples.Facade;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture()]
     public class FacadeTests
     {
-        [Test()]
-        public void ToJsonTest()
+        [Fact]
+        public void ToJson()
         {
             string expected = "{\"Id\":10}";
 
             string actual = JsonFacade.ToJson(new JsonObject(10));
 
-            Assert.That(actual.Equals(expected), Is.True);
+            Assert.Equal(expected, actual);
         }
 
-        [Test()]
+        [Fact]
         public void ToObjectTest()
         {
             JsonObject expected = new JsonObject(10);
             JsonObject actual = JsonFacade.ToObject<JsonObject>("{\"Id\":10}");
 
-            Assert.That(actual.Equals(expected), Is.True);
+            Assert.Equal(expected, actual);
         }
 
         private class JsonObject : IEquatable<JsonObject?>

@@ -1,12 +1,12 @@
 ﻿using Moq;
 using Samples.Observer;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture()]
     public class ObservableValueTests
     {
-        [Test()]
+        [Fact]
         public void SubscribeTest()
         {
             var observer = new Mock<IObserver<ObservableValue>>();

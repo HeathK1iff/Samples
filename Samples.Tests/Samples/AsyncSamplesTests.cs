@@ -2,13 +2,13 @@
 using Newtonsoft.Json.Linq;
 using Samples.Async;
 using System.Diagnostics;
+using Xunit;
 
 namespace Samples.Tests.Async
 {
-    [TestFixture]
     public class AsyncSamplesTests
     {
-        [Test]
+        [Fact]
         public void SomeWork10SecAsync_ReadWith6SecReadTimeOut_Throw()
         {
             var worker = new AsyncTimeOutWorker();
@@ -24,7 +24,7 @@ namespace Samples.Tests.Async
                 
             });
         }
-        [Test]
+        [Fact]
         public async Task SomeWork10SecAsync_ReadWith11SecReadTimeOut_True()
         {
             var reader = new AsyncTimeOutWorker();
@@ -34,11 +34,11 @@ namespace Samples.Tests.Async
             int value = await reader.SomeWork10SecAsync(TimeSpan.FromSeconds(12));
             sw.Stop();
 
-            Assert.IsTrue(value == 999);
-            Assert.IsTrue(sw.ElapsedMilliseconds > TimeSpan.FromSeconds(10).Milliseconds);
+            Assert.True(value == 999);
+            Assert.True(sw.ElapsedMilliseconds > TimeSpan.FromSeconds(10).Milliseconds);
         }
 
-        [Test]
+        [Fact]
         public async Task GetWorkDataAsync_ReturnValueFromInterface_True()
         {
             var mock = new Mock<IAsyncTimeOutWorker>();
@@ -47,10 +47,10 @@ namespace Samples.Tests.Async
 
             int result = await service.GetWorkDataAsync();
 
-            Assert.IsTrue(result == 999);
+            Assert.True(result == 999);
         }
 
-        [Test]
+        [Fact]
         public async Task GetWorkDataAsync_ThrowTimeOutExceptionFromInterface_Throw()
         {
             var mock = new Mock<IAsyncTimeOutWorker>();

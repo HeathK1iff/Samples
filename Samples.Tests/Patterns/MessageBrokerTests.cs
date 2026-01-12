@@ -1,9 +1,9 @@
 ﻿using Moq;
 using Samples.MessageBroker;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture]
     public class MessageBrokerTests
     {
         private class MyMessage: Message
@@ -11,7 +11,7 @@ namespace Samples.Tests.Patterns
         
         }
 
-        [Test]
+        [Fact]
         public void Publish_CheckReceiveMessage_Verify()
         {
             IMessageBroker broker = new MessageBroker.MessageBroker();
@@ -24,7 +24,7 @@ namespace Samples.Tests.Patterns
             subscriber.Verify();    
         }
 
-        [Test]
+        [Fact]
         public void Publish_CheckMultiplyReceive_Verify()
         {
             IMessageBroker broker = new MessageBroker.MessageBroker();

@@ -1,19 +1,18 @@
 ﻿using Newtonsoft.Json;
-using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Samples.Composite;
+using Samples.Composite.Implementations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Samples.Tests.Patterns
 {
-    [TestFixture()]
     public class CompositeTests
     {
-        [Test()]
+        [Fact]
         public void CompositeTest()
         {
             const string expected = @"{test:0,{test:{test1:1,test2:2}}";
@@ -29,7 +28,7 @@ namespace Samples.Tests.Patterns
             writer.Flush();
             string actual = ReadString(stream); 
             
-            Assert.That(actual.Equals(expected), Is.True);
+            Assert.Equal(actual, expected);
         }
 
         private string ReadString(Stream stream)

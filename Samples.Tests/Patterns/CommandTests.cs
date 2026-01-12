@@ -1,12 +1,12 @@
 ﻿using Moq;
 using Samples.Command;
+using Xunit;
 
 namespace Samples.Tests.Patterns
-{
-    [TestFixture()]
+{   
     public class CommandTests
     {
-        [Test()]
+        [Fact]
         public void CommandTest()
         {
             var lamp = new Mock<ILamp>();

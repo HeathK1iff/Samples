@@ -1,12 +1,12 @@
 ﻿using Moq;
 using Samples.Async.Progress;
+using Xunit;
 
 namespace Samples.Tests.Async
 {
-    [TestFixture]
     public class AsyncProgressTests
     {
-        [Test]
+        [Fact]
         public async Task LongWork_CheckProgress_True()
         {
             int actual = 0;
@@ -21,7 +21,7 @@ namespace Samples.Tests.Async
 
             await target.LongWork(progress.Object, token);
 
-            Assert.AreEqual(Expected, actual);
+            Assert.Equal(Expected, actual);
         }
     }
 }
